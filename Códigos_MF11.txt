@@ -1,0 +1,569 @@
+# Código MF11 P/L + P/VPA + ROE + Momentum (2024-1996)
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# Lista de anos
+anos <- 2024:1996
+
+for (ano in anos) {
+  
+  # Nome dos arquivos
+  arquivo_entrada <- paste0(ano, ".xlsx")
+  arquivo_saida <- paste0("MF11_empresas_", ano, ".xlsx")
+  
+  # 1. Ler a planilha
+  dados <- read_excel(arquivo_entrada)
+  
+  # 2. Renomear colunas
+  dados <- dados %>%
+    rename(
+      Ticker = `Ticker`,
+      PL = `P/L atual`,
+      PVPA = `P/VPA atual`,
+      ROE = `ROE último balanço em %`,
+      MOM = `Retorno últimos 6 meses em %`
+    )
+  
+  # 3. Converter tudo para texto, limpar e depois para numérico
+  dados <- dados %>%
+    mutate(
+      PL   = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", as.character(PL)))),
+      PVPA = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", as.character(PVPA)))),
+      ROE  = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", as.character(ROE)))),
+      MOM  = as.character(MOM),
+      MOM  = trimws(MOM),
+      MOM  = ifelse(MOM %in% c("", "-", "--", "N/A", "n/a", "NA", "na"), NA, MOM),
+      MOM  = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", MOM)))
+    )
+  
+  # 4. Filtrar empresas válidas:
+  #    - P/L > 0
+  #    - P/VPA > 0
+  #    - ROE > 0
+  #    - Momentum pode ser negativo, mas não pode ser vazio
+  dados_filtrados <- dados %>%
+    filter(!is.na(PL), PL > 0,
+           !is.na(PVPA), PVPA > 0,
+           !is.na(ROE), ROE > 0,
+           !is.na(MOM))
+  
+  # 5. Criar rankings individuais
+  dados_classificados <- dados_filtrados %>%
+    mutate(
+      Rank_PL   = rank(PL, ties.method = "first"),     # menor = melhor
+      Rank_PVPA = rank(PVPA, ties.method = "first"),   # menor = melhor
+      Rank_ROE  = rank(-ROE, ties.method = "first"),   # maior = melhor
+      Rank_MOM  = rank(-MOM, ties.method = "first")    # maior = melhor
+    ) %>%
+    # 6. Aplicar regra do Rank Final
+    mutate(
+      Rank_Final = ((Rank_PL + Rank_PVPA) / 2) + Rank_ROE + Rank_MOM
+    ) %>%
+    arrange(Rank_Final) %>%
+    mutate(Posicao_Final = row_number())
+  
+  # 7. Selecionar colunas finais
+  resultado <- dados_classificados %>%
+    select(Posicao_Final, Ticker, PL, PVPA, ROE, MOM,
+           Rank_PL, Rank_PVPA, Rank_ROE, Rank_MOM, Rank_Final)
+  
+  # 8. Exportar resultado
+  write.xlsx(resultado, arquivo_saida, overwrite = TRUE)
+  
+  cat("Arquivo", arquivo_saida, "criado com sucesso!\n")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Código criar uma planilha com os preços para MF1_2024:
+
+install.packages("readxl")
+install.packages("openxlsx")
+
+library(readxl)
+library(openxlsx)
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF11_empresas_2024.xlsx"        # lista de tickers (coluna B)
+planilha2 <- "precos_diarios_acoes.xlsx"     # dados por aba
+saida     <- "precos_empresas_MF11_2024.xlsx" # novo arquivo
+
+# --- 1) Ler coluna B a partir da linha 2 até a última célula preenchida (sem perder o 1º ticker) ---
+# Lê explicitamente de B2 até o final; sem cabeçalho para não descartar B2
+tickers_df <- read_excel(
+  path = planilha1,
+  range = readxl::cell_limits(c(2, 2), c(NA, 2)),  # de B2 até B(última)
+  col_names = FALSE
+)
+nomes_abas <- as.character(tickers_df[[1]])
+nomes_abas <- nomes_abas[!is.na(nomes_abas) & nomes_abas != ""]  # limpa NAs/vazios
+
+# --- 2) Criar workbook novo ---
+wb <- createWorkbook()
+
+# Estilos p/ formatar (A = data, B = número geral)
+dateStyle <- createStyle(numFmt = "dd/mm/yyyy")
+numStyle  <- createStyle(numFmt = "GENERAL")
+
+# --- 3) Loop: ler intervalo A7376:B7896 de cada aba e escrever na planilha final ---
+for (nome in nomes_abas) {
+  dados <- tryCatch(
+    {
+      # IMPORTANTE: col_names = FALSE, senão a 1ª linha (7376) vira cabeçalho e se perde
+      df <- read_excel(
+        planilha2,
+        sheet = nome,
+        range = "A7376:B7896",
+        col_names = FALSE,
+        col_types = c("date", "numeric")
+      )
+      colnames(df) <- c("Data", "Valor")
+      df
+    },
+    error = function(e) NULL
+  )
+  
+  if (!is.null(dados) && nrow(dados) > 0) {
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, x = dados, withFilter = FALSE)
+    
+    # Aplicar formatos (pular cabeçalho que escrevemos agora)
+    addStyle(wb, sheet = nome, style = dateStyle,
+             rows = 2:(nrow(dados) + 1), cols = 1, gridExpand = TRUE, stack = TRUE)
+    addStyle(wb, sheet = nome, style = numStyle,
+             rows = 2:(nrow(dados) + 1), cols = 2, gridExpand = TRUE, stack = TRUE)
+  }
+}
+
+# --- 4) Salvar ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+
+
+
+# Lista de anos
+anos <- 2023:1996
+
+# Intervalos de linhas por ano (A:B fixo, só mudam as linhas)
+intervalos <- list(
+  "2023" = "A7115:B7635",
+  "2022" = "A6854:B7375",
+  "2021" = "A6593:B7114",
+  "2020" = "A6331:B6853",
+  "2019" = "A6071:B6592",
+  "2018" = "A5811:B6330",
+  "2017" = "A5550:B6070",
+  "2016" = "A5288:B5810",
+  "2015" = "A5027:B5549",
+  "2014" = "A4766:B5287",
+  "2013" = "A4506:B5026",
+  "2012" = "A4245:B4765",
+  "2011" = "A3984:B4505",
+  "2010" = "A3723:B4244",
+  "2009" = "A3462:B3983",
+  "2008" = "A3201:B3722",
+  "2007" = "A2941:B3461",
+  "2006" = "A2680:B3200",
+  "2005" = "A2419:B2940",
+  "2004" = "A2157:B2679",
+  "2003" = "A1896:B2418",
+  "2002" = "A1636:B2156",
+  "2001" = "A1376:B1895",
+  "2000" = "A1114:B1635",
+  "1999" = "A853:B1375",
+  "1998" = "A592:B1113",
+  "1997" = "A331:B852",
+  "1996" = "A71:B591"
+)
+
+# Arquivo de preços
+precos_file <- "precos_diarios_acoes.xlsx"
+
+# Loop por ano
+for (ano in anos) {
+  
+  cat("Processando ano:", ano, "\n")
+  
+  # 1. Ler tickers do arquivo MF11_empresas_ANO.xlsx
+  planilha_empresas <- paste0("MF11_empresas_", ano, ".xlsx")
+  tickers <- read_excel(planilha_empresas, range = cell_cols("B"), col_names = FALSE)
+  tickers <- na.omit(tickers[[1]])  # remove NAs
+  
+  # 2. Criar workbook de saída
+  wb_saida <- createWorkbook()
+  
+  # 3. Para cada ticker, ler os dados da planilha de preços
+  for (ticker in tickers) {
+    if (ticker %in% excel_sheets(precos_file)) {
+      dados <- read_excel(precos_file, sheet = ticker, range = intervalos[[as.character(ano)]], col_names = FALSE)
+      addWorksheet(wb_saida, ticker)
+      writeData(wb_saida, ticker, dados, colNames = FALSE)
+    } else {
+      cat("Aba não encontrada para:", ticker, "no ano", ano, "\n")
+    }
+  }
+  
+  # 4. Salvar workbook final
+  saveWorkbook(wb_saida, paste0("precos_empresas_MF11_", ano, ".xlsx"), overwrite = TRUE)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Código para cálculo e índices de resultados MF11 2024:
+
+# Instalação e carregamento dos pacotes necessários
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("lubridate")
+
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readxl, openxlsx, dplyr, xts, PerformanceAnalytics, zoo)
+
+
+# =======================
+# Pacotes
+# =======================
+library(readxl)
+library(dplyr)
+library(lubridate)
+library(xts)
+library(PerformanceAnalytics)
+library(openxlsx)
+library(zoo)
+
+# =======================
+# Funções auxiliares
+# =======================
+
+# Métricas da série de retornos da CARTEIRA
+calc_metrics <- function(returns) {
+  wealth_index <- cumprod(1 + returns)
+  drawdowns <- PerformanceAnalytics::Drawdowns(returns)
+  data.frame(
+    Retorno_Anualizado      = (prod(1 + returns))^(252/length(returns)) - 1,
+    Volatilidade_Anualizada = sd(returns, na.rm = TRUE) * sqrt(252),
+    Max_Drawdown            = min(drawdowns, na.rm = TRUE)
+  )
+}
+
+# BUY & HOLD (pesos iguais no início, sem rebalancear) — com tratamento de NAs líderes
+portfolio_returns <- function(prices) {
+  prices <- as.xts(prices)
+
+  # Retornos por ativo; remove NAs líderes (linha 1 típica)
+  rets <- Return.calculate(prices, method = "discrete")
+  rets <- na.omit(rets)
+
+  # Pesos iguais no INÍCIO
+  w <- rep(1 / ncol(rets), ncol(rets))
+
+  # Wealth individual (agora sem NAs líderes)
+  wealth <- cumprod(1 + rets)
+
+  # Valor da carteira = combinação dos wealths com pesos iniciais
+  portfolio_value <- as.xts(wealth %*% w, order.by = index(wealth))
+
+  # Série de retornos da carteira; remove NA inicial
+  portfolio_rets <- na.omit(Return.calculate(portfolio_value, method = "discrete"))
+  portfolio_rets
+}
+
+# =======================
+# Leitura do arquivo
+# =======================
+
+ano <- 2024
+file <- paste0("precos_empresas_MF11_", ano, ".xlsx")
+sheets <- excel_sheets(file)
+
+# Janela 01/04/ANO → 31/03/(ANO+1)
+data_ini <- as.Date(sprintf("%d-04-01", ano))
+data_fim <- as.Date(sprintf("%d-03-31", ano + 1))
+
+# Leitura por aba (Data, Preco) já no recorte de datas
+all_prices <- lapply(sheets, function(s) {
+  # Se suas abas não têm cabeçalho, deixe col_names = FALSE.
+  # Se TÊM cabeçalho, troque para col_names = TRUE e ajuste os nomes abaixo.
+  df <- read_excel(file, sheet = s, col_names = FALSE, col_types = c("date", "numeric"))
+  if (ncol(df) < 2) return(xts(order.by = as.Date(character())))
+  names(df) <- c("Data", "Preco")
+
+  df$Data <- as.Date(df$Data)
+  df <- df %>% filter(!is.na(Data), Data >= data_ini, Data <= data_fim, !is.na(Preco))
+
+  if (nrow(df) == 0) return(xts(order.by = as.Date(character())))
+  xts(df$Preco, order.by = df$Data)
+})
+names(all_prices) <- sheets
+
+# =======================
+# Definição das carteiras
+# =======================
+
+top_portfolios <- list(
+  Top5   = sheets[1:5],
+  Top10  = sheets[1:10],
+  Top15  = sheets[1:15],
+  Top20  = sheets[1:20],
+  Top30  = sheets[1:30]
+)
+
+n <- length(sheets)
+q_size <- floor(n/5)
+quintil_portfolios <- list(
+  Quintil1 = sheets[1:q_size],
+  Quintil2 = sheets[(q_size+1):(2*q_size)],
+  Quintil3 = sheets[(2*q_size+1):(3*q_size)],
+  Quintil4 = sheets[(3*q_size+1):(4*q_size)],
+  Quintil5 = sheets[(4*q_size+1):n]
+)
+
+portfolios <- c(top_portfolios, quintil_portfolios)
+
+# =======================
+# Calcular retornos e métricas
+# =======================
+
+results <- list()
+summary_df <- data.frame()
+
+for (pname in names(portfolios)) {
+  tickers <- portfolios[[pname]]
+
+  # Mantém só tickers com ALGUM dado na janela
+  tickers <- tickers[sapply(all_prices[tickers], function(x) NROW(x) > 0)]
+  if (length(tickers) < 2) {
+    warning(sprintf("Carteira %s tem menos de 2 ativos com dados na janela. Pulando.", pname))
+    next
+  }
+
+  # Junta preços (UNIÃO de datas)
+  prices <- do.call(merge, all_prices[tickers])
+
+  # 1) Preenche para FRENTE (deslistagem → preço travado)
+  prices <- na.locf(prices, fromLast = FALSE, na.rm = FALSE)
+
+  # 2) Remove linhas em que AINDA haja NA em QUALQUER ativo
+  #    (são datas antes do 1º preço de algum ticker; não dá pra ter pesos iguais nesse dia)
+  prices <- na.omit(prices)
+
+  colnames(prices) <- tickers
+
+  # Série de retornos da CARTEIRA (buy & hold)
+  rets <- portfolio_returns(prices)
+
+  # Métricas
+  metrics <- calc_metrics(rets)
+  metrics$Carteira <- pname
+  summary_df <- rbind(summary_df, metrics)
+
+  # Séries p/ exportação
+  wealth_index <- cumprod(1 + rets)
+  drawdowns <- PerformanceAnalytics::Drawdowns(rets)
+
+  df_out <- data.frame(
+    Data         = index(rets),
+    Retorno      = as.numeric(rets),
+    Wealth_Index = as.numeric(wealth_index),
+    Drawdown     = as.numeric(drawdowns)
+  )
+  results[[pname]] <- df_out
+}
+
+# =======================
+# Exportar para Excel
+# =======================
+
+wb <- createWorkbook()
+addWorksheet(wb, "Resumo")
+writeData(wb, "Resumo", summary_df)
+
+for (pname in names(results)) {
+  addWorksheet(wb, pname)
+  writeData(wb, pname, results[[pname]])
+}
+
+out_name <- sprintf("indices_resultados_MF11_%d.xlsx", ano)
+saveWorkbook(wb, out_name, overwrite = TRUE)
+cat("Arquivo salvo como", out_name, "\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Código para cálculo e índices de resultados MF8 2023-1996:
+
+# =======================
+# Loop para vários anos
+# =======================
+
+for (ano in 2023:1996) {
+  cat("Processando ano:", ano, "\n")
+  
+  file <- sprintf("precos_empresas_MF11_%d.xlsx", ano)
+  if (!file.exists(file)) {
+    warning(sprintf("Arquivo %s não encontrado. Pulando.", file))
+    next
+  }
+  
+  sheets <- excel_sheets(file)
+  
+  # Janela 01/04/ANO → 31/03/(ANO+1)
+  data_ini <- as.Date(sprintf("%d-04-01", ano))
+  data_fim <- as.Date(sprintf("%d-03-31", ano + 1))
+  
+  # Leitura de preços por aba
+  all_prices <- lapply(sheets, function(s) {
+    df <- read_excel(file, sheet = s, col_names = FALSE, col_types = c("date", "numeric"))
+    if (ncol(df) < 2) return(xts(order.by = as.Date(character())))
+    names(df) <- c("Data", "Preco")
+    df$Data <- as.Date(df$Data)
+    df <- df %>% filter(!is.na(Data), Data >= data_ini, Data <= data_fim, !is.na(Preco))
+    if (nrow(df) == 0) return(xts(order.by = as.Date(character())))
+    xts(df$Preco, order.by = df$Data)
+  })
+  names(all_prices) <- sheets
+  
+  # Definição das carteiras
+  top_portfolios <- list(
+    Top5   = sheets[1:5],
+    Top10  = sheets[1:10],
+    Top15  = sheets[1:15],
+    Top20  = sheets[1:20],
+    Top30  = sheets[1:30]
+  )
+  
+  n <- length(sheets)
+  q_size <- floor(n/5)
+  quintil_portfolios <- list(
+    Quintil1 = sheets[1:q_size],
+    Quintil2 = sheets[(q_size+1):(2*q_size)],
+    Quintil3 = sheets[(2*q_size+1):(3*q_size)],
+    Quintil4 = sheets[(3*q_size+1):(4*q_size)],
+    Quintil5 = sheets[(4*q_size+1):n]
+  )
+  
+  portfolios <- c(top_portfolios, quintil_portfolios)
+  
+  results <- list()
+  summary_df <- data.frame()
+  
+  for (pname in names(portfolios)) {
+    tickers <- portfolios[[pname]]
+    tickers <- tickers[sapply(all_prices[tickers], function(x) NROW(x) > 0)]
+    if (length(tickers) < 2) next
+    
+    prices <- do.call(merge, all_prices[tickers])
+    prices <- na.locf(prices, fromLast = FALSE, na.rm = FALSE)
+    prices <- na.omit(prices)
+    colnames(prices) <- tickers
+    
+    rets <- portfolio_returns(prices)
+    
+    metrics <- calc_metrics(rets)
+    metrics$Carteira <- pname
+    summary_df <- rbind(summary_df, metrics)
+    
+    wealth_index <- cumprod(1 + rets)
+    drawdowns <- PerformanceAnalytics::Drawdowns(rets)
+    
+    df_out <- data.frame(
+      Data         = index(rets),
+      Retorno      = as.numeric(rets),
+      Wealth_Index = as.numeric(wealth_index),
+      Drawdown     = as.numeric(drawdowns)
+    )
+    results[[pname]] <- df_out
+  }
+  
+  # Exportar para Excel
+  wb <- createWorkbook()
+  addWorksheet(wb, "Resumo")
+  writeData(wb, "Resumo", summary_df)
+  
+  for (pname in names(results)) {
+    addWorksheet(wb, pname)
+    writeData(wb, pname, results[[pname]])
+  }
+  
+  out_name <- sprintf("indices_resultados_MF11_%d.xlsx", ano)
+  saveWorkbook(wb, out_name, overwrite = TRUE)
+  cat("Arquivo salvo como", out_name, "\n")
+}
+

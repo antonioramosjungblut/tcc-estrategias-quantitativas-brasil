@@ -1,0 +1,72 @@
+# Código MF4 ROE + P/L + P/VPA (2024-1996)
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# Lista de anos
+anos <- 2024:1996
+
+for (ano in anos) {
+  
+  # Nome dos arquivos
+  arquivo_entrada <- paste0(ano, ".xlsx")
+  arquivo_saida <- paste0("MF4_empresas_", ano, ".xlsx")
+  
+  # 1. Ler a planilha
+  dados <- read_excel(arquivo_entrada)
+  
+  # 2. Renomear colunas
+  dados <- dados %>%
+    rename(
+      Ticker = `Ticker`,
+      ROE = `ROE último balanço em %`,
+      PL = `P/L atual`,
+      PVPA = `P/VPA atual`
+    )
+  
+  # 3. Substituir "-" por NA e converter para numérico
+  dados <- dados %>%
+    mutate(
+      ROE = na_if(ROE, "-"),
+      PL = na_if(PL, "-"),
+      PVPA = na_if(PVPA, "-"),
+      ROE = as.numeric(gsub(",", ".", ROE)),
+      PL = as.numeric(gsub(",", ".", PL)),
+      PVPA = as.numeric(gsub(",", ".", PVPA))
+    )
+  
+  # 4. Filtrar empresas válidas:
+  #    - ROE > 0
+  #    - P/L > 0
+  #    - P/VPA > 0
+  dados_filtrados <- dados %>%
+    filter(!is.na(ROE), ROE > 0,
+           !is.na(PL), PL > 0,
+           !is.na(PVPA), PVPA > 0)
+  
+  # 5. Criar rankings individuais
+  dados_classificados <- dados_filtrados %>%
+    mutate(
+      Rank_ROE  = rank(-ROE, ties.method = "first"),    # maior ROE = melhor
+      Rank_PL   = rank(PL, ties.method = "first"),      # menor P/L = melhor
+      Rank_PVPA = rank(PVPA, ties.method = "first")     # menor P/VPA = melhor
+    ) %>%
+    # 6. Aplicar regra do Rank Final
+    mutate(
+      Rank_Final = Rank_ROE + ((Rank_PL + Rank_PVPA) / 2)
+    ) %>%
+    arrange(Rank_Final) %>%
+    mutate(Posicao_Final = row_number())
+  
+  # 7. Selecionar colunas finais
+  resultado <- dados_classificados %>%
+    select(Posicao_Final, Ticker, ROE, PL, PVPA,
+           Rank_ROE, Rank_PL, Rank_PVPA, Rank_Final)
+  
+  # 8. Exportar resultado
+  write.xlsx(resultado, arquivo_saida, overwrite = TRUE)
+  
+  cat("Arquivo", arquivo_saida, "criado com sucesso!\n")
+}
+

@@ -1,0 +1,997 @@
+
+#Código criar uma planilha com os preços para MF1_2024:
+
+# Instalar pacotes se não tiver
+install.packages("readxl")
+install.packages("openxlsx")
+
+library(readxl)
+library(openxlsx)
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2024.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2024.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B189", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A7376:B7896", col_names = TRUE),
+    error = function(e) NULL
+  )
+  
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+
+
+
+#Código criar uma planilha com os preços para MF1_2023:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2023.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2023.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B194", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A7115:B7635", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+
+
+#Código criar uma planilha com os preços para MF1_2022:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2022.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2022.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B203", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A6854:B7375", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+
+#Código criar uma planilha com os preços para MF1_2021:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2021.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2021.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B166", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A6593:B7114", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2020:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2020.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2020.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B159", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A6331:B6853", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2019:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2019.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2019.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B141", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A6071:B6592", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2018:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2018.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2018.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B139", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A5811:B6330", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2017:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2017.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2017.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B118", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A5550:B6070", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2016:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2016.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2016.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B116", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A5288:B5810", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2015:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2015.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2015.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B129", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A5027:B5549", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2014:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2014.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2014.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B146", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A4766:B5287", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2013:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2013.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2013.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B135", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A4506:B5026", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2012:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2012.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2012.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B146", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A4245:B4765", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2011:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2011.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2011.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B152", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A3984:B4505", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2010:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2010.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2010.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B132", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A3723:B4244", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2009:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2009.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2009.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B129", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A3462:B3983", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2008:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2008.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2008.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B132", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A3201:B3722", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2007:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2007.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2007.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B94", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A2941:B3461", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2006:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2006.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2006.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B72", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A2680:B3200", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2005:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2005.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2005.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B80", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A2419:B2940", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2004:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2004.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2004.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B72", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A2157:B2679", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2003:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2003.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2003.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B58", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A1896:B2418", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2002:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2002.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2002.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B59", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A1636:B2156", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2001:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2001.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2001.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B79", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A1376:B1895", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_2000:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_2000.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_2000.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B87", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A1114:B1635", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_1999:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_1999.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_1999.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B57", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A853:B1375", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_1998:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_1998.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_1998.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B81", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A592:B1113", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_1997:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_1997.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_1997.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B77", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A331:B852", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+#Código criar uma planilha com os preços para MF1_1996:
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF1_empresas_1996.xlsx"       # onde estão os nomes das abas
+planilha2 <- "precos_diarios_acoes.xlsx"     # onde estão os dados
+saida     <- "precos_empresas_MF1_1996.xlsx"          # novo arquivo final
+
+# --- 1. Ler lista de abas a partir da coluna B da planilha1 ---
+nomes_abas <- read_excel(planilha1, range = "B2:B50", col_names = FALSE)[[1]]
+nomes_abas <- nomes_abas[!is.na(nomes_abas)]   # remove NAs
+
+# --- 2. Criar workbook novo ---
+wb <- createWorkbook()
+
+# --- 3. Loop pelos nomes das abas ---
+for (nome in nomes_abas) {
+  # Ler somente as linhas de datas e preços de 01/04/ano anterior até 31/03/ano após, colunas A e B, da aba correspondente 
+  dados <- tryCatch(
+    read_excel(planilha2, sheet = nome, range = "A71:B591", col_names = TRUE),
+    error = function(e) NULL
+  )
+ 
+  if (!is.null(dados)) {
+    # Criar aba nova e adicionar os dados
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, dados)
+  }
+}
+
+# --- 4. Salvar o arquivo final ---
+saveWorkbook(wb, saida, overwrite = TRUE)

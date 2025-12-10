@@ -1,0 +1,81 @@
+# Código MF5 ROIC + ROE + EV/EBIT + P/L + P/VPA (2024-1996)
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# Lista de anos
+anos <- 2024:1996
+
+for (ano in anos) {
+  
+  # Nome dos arquivos
+  arquivo_entrada <- paste0(ano, ".xlsx")
+  arquivo_saida <- paste0("MF5_empresas_", ano, ".xlsx")
+  
+  # 1. Ler a planilha
+  dados <- read_excel(arquivo_entrada)
+  
+  # 2. Renomear colunas
+  dados <- dados %>%
+    rename(
+      Ticker = `Ticker`,
+      ROIC = `ROIC último balanço em %`,
+      ROE = `ROE último balanço em %`,
+      EV_EBIT = `EV/EBIT atual`,
+      PL = `P/L atual`,
+      PVPA = `P/VPA atual`
+    )
+  
+  # 3. Substituir "-" por NA e converter para numérico
+  dados <- dados %>%
+    mutate(
+      ROIC = na_if(ROIC, "-"),
+      ROE = na_if(ROE, "-"),
+      EV_EBIT = na_if(EV_EBIT, "-"),
+      PL = na_if(PL, "-"),
+      PVPA = na_if(PVPA, "-"),
+      ROIC = as.numeric(gsub(",", ".", ROIC)),
+      ROE = as.numeric(gsub(",", ".", ROE)),
+      EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT)),
+      PL = as.numeric(gsub(",", ".", PL)),
+      PVPA = as.numeric(gsub(",", ".", PVPA))
+    )
+  
+  # 4. Filtrar empresas válidas:
+  #    - ROIC > 0, ROE > 0
+  #    - EV/EBIT > 0, P/L > 0, P/VPA > 0
+  dados_filtrados <- dados %>%
+    filter(!is.na(ROIC), ROIC > 0,
+           !is.na(ROE), ROE > 0,
+           !is.na(EV_EBIT), EV_EBIT > 0,
+           !is.na(PL), PL > 0,
+           !is.na(PVPA), PVPA > 0)
+  
+  # 5. Criar rankings individuais
+  dados_classificados <- dados_filtrados %>%
+    mutate(
+      Rank_ROIC   = rank(-ROIC, ties.method = "first"),    # maior ROIC melhor
+      Rank_ROE    = rank(-ROE, ties.method = "first"),     # maior ROE melhor
+      Rank_EVEBIT = rank(EV_EBIT, ties.method = "first"),  # menor EV/EBIT melhor
+      Rank_PL     = rank(PL, ties.method = "first"),       # menor P/L melhor
+      Rank_PVPA   = rank(PVPA, ties.method = "first")      # menor P/VPA melhor
+    ) %>%
+    # 6. Aplicar regra nova
+    mutate(
+      Rank_Final = ((Rank_ROIC + Rank_ROE) / 2) + 
+                   ((Rank_EVEBIT + Rank_PL + Rank_PVPA) / 3)
+    ) %>%
+    arrange(Rank_Final) %>%
+    mutate(Posicao_Final = row_number())
+  
+  # 7. Selecionar colunas finais
+  resultado <- dados_classificados %>%
+    select(Posicao_Final, Ticker, ROIC, ROE, EV_EBIT, PL, PVPA,
+           Rank_ROIC, Rank_ROE, Rank_EVEBIT, Rank_PL, Rank_PVPA, Rank_Final)
+  
+  # 8. Exportar resultado
+  write.xlsx(resultado, arquivo_saida, overwrite = TRUE)
+  
+  cat("Arquivo", arquivo_saida, "criado com sucesso!\n")
+}

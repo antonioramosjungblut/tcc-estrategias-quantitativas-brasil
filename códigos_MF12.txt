@@ -1,0 +1,524 @@
+# Código MF12 ((P/L + P/VPA)/2) + ROE  — Base: data_set_base_2.xlsx
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# Arquivo base e saída
+arquivo_entrada <- "data_set_base_2.xlsx"
+arquivo_saida <- "MF12_empresas.xlsx"
+
+# Ler todas as abas
+abas <- excel_sheets(arquivo_entrada)
+
+# Criar workbook de saída
+wb <- createWorkbook()
+
+for (aba in abas) {
+  
+  cat("Processando aba:", aba, "\n")
+  
+  # 1. Ler dados da aba
+  dados <- read_excel(arquivo_entrada, sheet = aba)
+  
+  # 2. Renomear colunas
+  dados <- dados %>%
+    rename(
+      Ticker = `Ticker`,
+      PL = `P/L atual`,
+      PVPA = `P/VPA atual`,
+      ROE = `ROE último balanço em %`
+    )
+  
+  # 3. Converter tudo para texto, limpar e depois para numérico
+  dados <- dados %>%
+    mutate(
+      PL   = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", as.character(PL)))),
+      PVPA = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", as.character(PVPA)))),
+      ROE  = as.numeric(gsub(",", ".", gsub("[^0-9.-]", "", as.character(ROE))))
+    )
+  
+  # 4. Filtrar empresas válidas:
+  #    - P/L > 0
+  #    - P/VPA > 0
+  #    - ROE > 0
+  dados_filtrados <- dados %>%
+    filter(!is.na(PL), PL > 0,
+           !is.na(PVPA), PVPA > 0,
+           !is.na(ROE), ROE > 0)
+  
+  # 5. Criar rankings individuais
+  dados_classificados <- dados_filtrados %>%
+    mutate(
+      Rank_PL   = rank(PL, ties.method = "first"),     # menor P/L = melhor
+      Rank_PVPA = rank(PVPA, ties.method = "first"),   # menor P/VPA = melhor
+      Rank_ROE  = rank(-ROE, ties.method = "first")    # maior ROE = melhor
+    ) %>%
+    # 6. Calcular Rank Final
+    mutate(
+      Rank_Final = ((Rank_PL + Rank_PVPA) / 2) + Rank_ROE
+    ) %>%
+    arrange(Rank_Final) %>%
+    mutate(Posicao_Final = row_number()) %>%
+    # 7. Manter apenas os 30 primeiros
+    filter(Posicao_Final <= 30)
+  
+  # 8. Selecionar colunas finais
+  resultado <- dados_classificados %>%
+    select(Posicao_Final, Ticker, PL, PVPA, ROE,
+           Rank_PL, Rank_PVPA, Rank_ROE, Rank_Final)
+  
+  # 9. Adicionar aba no Excel de saída
+  addWorksheet(wb, aba)
+  writeData(wb, aba, resultado)
+}
+
+# 10. Salvar o arquivo consolidado
+saveWorkbook(wb, arquivo_saida, overwrite = TRUE)
+
+cat("\nArquivo 'MF12_empresas.xlsx' criado com sucesso!\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ================================
+# Código gerar planilhas de preços MF12 (1998–2024)
+# ================================
+
+# Instalar pacotes se não tiver
+# install.packages("readxl")
+# install.packages("openxlsx")
+
+library(readxl)
+library(openxlsx)
+
+# Caminhos dos arquivos
+empresas_file <- "MF12_empresas.xlsx"
+precos_file   <- "precos_diarios_acoes.xlsx"
+
+# Lista de anos
+anos <- 1998:2024
+
+# Intervalos A:B para cada ano
+intervalos <- list(
+  "1998" = "A71:B1113",
+  "1999" = "A336:B1375",
+  "2000" = "A592:B1635",
+  "2001" = "A853:B1895",
+  "2002" = "A1114:B2156",
+  "2003" = "A1376:B2418",
+  "2004" = "A1636:B2679",
+  "2005" = "A1896:B2940",
+  "2006" = "A2157:B3200",
+  "2007" = "A2419:B3461",
+  "2008" = "A2680:B3722",
+  "2009" = "A2941:B3983",
+  "2010" = "A3201:B4244",
+  "2011" = "A3462:B4505",
+  "2012" = "A3723:B4765",
+  "2013" = "A3984:B5026",
+  "2014" = "A4245:B5287",
+  "2015" = "A4506:B5549",
+  "2016" = "A4766:B5810",
+  "2017" = "A5027:B6070",
+  "2018" = "A5288:B6330",
+  "2019" = "A5550:B6592",
+  "2020" = "A5811:B6853",
+  "2021" = "A6071:B7114",
+  "2022" = "A6331:B7375",
+  "2023" = "A6593:B7635",
+  "2024" = "A6854:B7896"
+)
+
+# Estilos (opcional — mantém formato de data e número)
+dateStyle <- createStyle(numFmt = "dd/mm/yyyy")
+numStyle  <- createStyle(numFmt = "GENERAL")
+
+# Loop pelos anos
+for (ano in anos) {
+  cat("Processando ano:", ano, "\n")
+  
+  # --- Ler tickers da aba correspondente ---
+  tickers <- read_excel(empresas_file,
+                        sheet = as.character(ano),
+                        range = "B2:B31",
+                        col_names = FALSE)[[1]]
+  
+  tickers <- tickers[!is.na(tickers) & tickers != ""]
+  
+  # --- Criar workbook para o ano ---
+  wb <- createWorkbook()
+  
+  # --- Para cada ticker, copiar dados da planilha de preços ---
+  for (ticker in tickers) {
+    dados <- tryCatch({
+      df <- read_excel(precos_file,
+                       sheet = ticker,
+                       range = intervalos[[as.character(ano)]],
+                       col_names = FALSE,
+                       col_types = c("date", "numeric"))
+      colnames(df) <- c("Data", "Valor")
+      df
+    }, error = function(e) NULL)
+    
+    if (!is.null(dados)) {
+      addWorksheet(wb, ticker)
+      writeData(wb, ticker, dados, withFilter = FALSE)
+      
+      # Aplicar estilos (datas e números)
+      addStyle(wb, ticker, dateStyle, rows = 2:(nrow(dados) + 1), cols = 1, gridExpand = TRUE)
+      addStyle(wb, ticker, numStyle,  rows = 2:(nrow(dados) + 1), cols = 2, gridExpand = TRUE)
+    } else {
+      cat("Aba não encontrada:", ticker, "no ano", ano, "\n")
+    }
+  }
+  
+  # --- Salvar arquivo do ano ---
+  saveWorkbook(wb, paste0("precos_empresas_MF12_", ano, ".xlsx"), overwrite = TRUE)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ==========================================
+# MARKOWITZ MÉDIA-VARIÂNCIA ROBUSTO (w>0 e soma=1)
+# Período de 3 anos (01/04/(ano-3) a 31/03/(ano))
+# ==========================================
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readxl, openxlsx, dplyr, PerformanceAnalytics, xts, zoo, lubridate)
+
+# -----------------------------
+# Função principal
+# -----------------------------
+calcular_pesos_MF12 <- function(ano) {
+  arquivo <- paste0("precos_empresas_MF12_", ano, ".xlsx")
+  cat("\nProcessando:", arquivo, "\n")
+  if (!file.exists(arquivo)) {
+    cat("Arquivo não encontrado, pulando...\n")
+    return(NULL)
+  }
+  
+  # Define intervalo de datas
+  data_inicio <- as.Date(paste0(ano - 3, "-04-01"))
+  data_fim    <- as.Date(paste0(ano, "-03-31"))
+  cat("Período considerado:", format(data_inicio), "até", format(data_fim), "\n")
+  
+  abas <- excel_sheets(arquivo)
+  
+  # --- Leitura e união das séries ---
+  ler_precos <- function(sheet) {
+    dados <- read_excel(arquivo, sheet = sheet)
+    colnames(dados)[1:2] <- c("Data", "Preco")
+    dados <- dados %>%
+      mutate(Data = as.Date(Data)) %>%
+      filter(Data >= data_inicio & Data <= data_fim) %>%
+      arrange(Data)
+    colnames(dados)[2] <- sheet
+    return(dados)
+  }
+  
+  lista_precos <- lapply(abas, ler_precos)
+  dados_precos <- Reduce(function(x, y) full_join(x, y, by = "Data"), lista_precos)
+  dados_precos <- dados_precos %>% arrange(Data)
+  
+  # Preencher valores faltantes
+  dados_precos <- dados_precos %>%
+    mutate(across(-Data, zoo::na.locf, na.rm = FALSE)) %>%
+    mutate(across(-Data, zoo::na.locf, fromLast = TRUE))
+  
+  # --- Retornos logarítmicos ---
+  retornos <- diff(log(as.matrix(dados_precos[,-1])))
+  colnames(retornos) <- colnames(dados_precos)[-1]
+  retornos <- na.omit(retornos)
+  datas <- dados_precos$Data[-1]
+  retornos_xts <- xts(retornos, order.by = as.Date(datas))
+  
+  # --- Parâmetros ---
+  mu <- colMeans(retornos_xts)
+  Sigma <- cov(retornos_xts)
+  n <- length(mu)
+  
+  # Regularização para evitar singularidade
+  Sigma <- Sigma + diag(1e-6, n)
+  
+  # -----------------------------
+  # Otimização via optim()
+  # -----------------------------
+  objetivo <- function(w) {
+    w <- w / sum(w)
+    risco <- as.numeric(t(w) %*% Sigma %*% w)
+    retorno <- as.numeric(sum(w * mu))
+    return(risco - 0.5 * retorno)
+  }
+  
+  penalizacao <- function(w) {
+    p1 <- sum(pmax(-w, 0)^2)
+    p2 <- (sum(w) - 1)^2
+    return(1e5 * (p1 + p2))
+  }
+  
+  objetivo_penalizado <- function(w) objetivo(w) + penalizacao(w)
+  
+  w_inicial <- rep(1/n, n)
+  
+  resultado <- optim(
+    par = w_inicial,
+    fn = objetivo_penalizado,
+    method = "L-BFGS-B",
+    lower = rep(1e-6, n),
+    upper = rep(1, n),
+    control = list(maxit = 5000)
+  )
+  
+  w_otimo <- resultado$par / sum(resultado$par)
+  
+  # -----------------------------
+  # Exporta resultados
+  # -----------------------------
+  df_pesos <- data.frame(
+    Ticker = names(mu),
+    Peso = round(w_otimo, 6)
+  )
+  
+  nome_saida <- paste0("pesos_MF12_", ano, ".xlsx")
+  write.xlsx(df_pesos, nome_saida)
+  cat("✅", nome_saida, "criado com sucesso! Soma dos pesos:", round(sum(w_otimo), 6), "\n")
+  invisible(df_pesos)
+}
+
+# -----------------------------
+# Loop 1998–2024
+# -----------------------------
+anos <- 1998:2024
+for (ano in anos) {
+  calcular_pesos_MF12(ano)
+}
+
+cat("\n==============================\n")
+cat("✅ TODOS OS ANOS PROCESSADOS (1998–2024)\n")
+cat("==============================\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# =======================
+# Instalação / Carregamento de Pacotes
+# =======================
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readxl, openxlsx, dplyr, xts, zoo, PerformanceAnalytics)
+
+# =======================
+# Funções auxiliares
+# =======================
+
+# Lê preços (Data, Preco) de TODAS as abas de um arquivo de preços
+# e recorta pela janela [data_ini, data_fim].
+read_prices_file <- function(price_file, data_ini, data_fim) {
+  if (!file.exists(price_file)) stop("Arquivo de preços não encontrado: ", price_file)
+  sheets <- readxl::excel_sheets(price_file)
+  
+  all_prices <- lapply(sheets, function(s) {
+    # Tenta ler duas colunas: Data (A) e Preço (B). Sem cabeçalho.
+    df <- readxl::read_excel(price_file, sheet = s, col_names = FALSE,
+                             col_types = c("date", "numeric"))
+    if (ncol(df) < 2) return(xts::xts(order.by = as.Date(character())))
+    names(df) <- c("Data", "Preco")
+    
+    # Datas e numéricos
+    df$Data  <- as.Date(df$Data)
+    df$Preco <- suppressWarnings(as.numeric(df$Preco))
+    
+    # Recorte da janela e remoção de linhas inválidas
+    df <- df %>%
+      dplyr::filter(!is.na(Data),
+                    Data >= data_ini, Data <= data_fim,
+                    !is.na(Preco))
+    
+    if (nrow(df) == 0) return(xts::xts(order.by = as.Date(character())))
+    xts::xts(df$Preco, order.by = df$Data)
+  })
+  names(all_prices) <- sheets
+  list(prices = all_prices, tickers = sheets)
+}
+
+# Lê pesos A2:A31 (tickers) e B2:B31 (pesos) de um arquivo de pesos
+read_weights_file <- function(weight_file) {
+  if (!file.exists(weight_file)) stop("Arquivo de pesos não encontrado: ", weight_file)
+  # Lê primeira planilha por padrão; ajuste se necessário
+  raw <- readxl::read_excel(weight_file, sheet = 1, range = "A2:B31", col_names = FALSE)
+  names(raw) <- c("Ticker", "Peso")
+  raw$Ticker <- as.character(raw$Ticker)
+  raw$Peso   <- suppressWarnings(as.numeric(gsub(",", ".", as.character(raw$Peso))))
+  raw <- raw %>% dplyr::filter(!is.na(Ticker), !is.na(Peso))
+  # Normaliza pesos (caso não some exatamente 1)
+  if (nrow(raw) > 0) {
+    s <- sum(raw$Peso, na.rm = TRUE)
+    if (is.finite(s) && s > 0) raw$Peso <- raw$Peso / s
+  }
+  raw
+}
+
+# Calcula métricas da carteira a partir da série de retornos diários
+calc_metrics <- function(returns) {
+  returns <- as.numeric(returns)
+  wealth_index <- cumprod(1 + returns)
+  drawdowns <- PerformanceAnalytics::Drawdowns(returns)
+  data.frame(
+    Retorno_Anualizado      = (prod(1 + returns))^(252/length(returns)) - 1,
+    Volatilidade_Anualizada = sd(returns, na.rm = TRUE) * sqrt(252),
+    Max_Drawdown            = min(drawdowns, na.rm = TRUE)
+  )
+}
+
+# Constrói a série de retornos da CARTEIRA (Buy & Hold com pesos iniciais)
+# - Junta preços por UNIÃO de datas
+# - Forward-fill (na.locf) para pós-deslistagem (retornos = 0 após último preço)
+# - Remove linhas ainda com NA (antes do 1º preço de algum ativo)
+# - Wealth por ativo = preço / preço_inicial_alinhado
+# - Valor da carteira = soma( w_i * wealth_i )
+# - Retornos da carteira = Return.calculate(portfolio_value)
+build_portfolio_returns <- function(prices_list, weight_df, data_ini, data_fim) {
+  if (nrow(weight_df) == 0) stop("Arquivo de pesos sem linhas válidas.")
+  tickers_w <- weight_df$Ticker
+  weights   <- weight_df$Peso
+  
+  # Mantém apenas tickers presentes em ambos (pesos e preços)
+  commons <- intersect(names(prices_list), tickers_w)
+  if (length(commons) < 1) stop("Nenhum ticker do arquivo de pesos encontrado no arquivo de preços.")
+  
+  # Reordena de acordo com a ordem do data frame de pesos
+  commons <- tickers_w[tickers_w %in% commons]
+  prices_to_merge <- prices_list[commons]
+  
+  # Merge por UNIÃO de datas
+  px <- do.call(merge, c(prices_to_merge, all = TRUE))
+  
+  # Forward-fill (preços param de mudar após o último valor -> retornos 0)
+  px <- zoo::na.locf(px, fromLast = FALSE, na.rm = FALSE)
+  
+  # Remove linhas que ainda tenham NA (datas antes do 1º preço de algum ativo)
+  px <- na.omit(px)
+  if (NROW(px) < 2) stop("Série de preços insuficiente após alinhamento.")
+  
+  colnames(px) <- commons
+  
+  # Alinha vetor de pesos à ordem das colunas
+  w <- weights[match(colnames(px), tickers_w)]
+  w[is.na(w)] <- 0
+  # Normaliza de novo (se sobrar zeros)
+  s <- sum(w)
+  if (!is.finite(s) || s <= 0) stop("Soma de pesos não positiva depois do alinhamento.")
+  w <- w / s
+  
+  # Wealth por ativo (base 1 no primeiro dia comum)
+  first_row <- as.numeric(px[1, ])
+  wealth_mat <- sweep(as.matrix(px), 2, first_row, "/")
+  
+  # Valor da carteira (buy & hold com pesos iniciais)
+  portfolio_value <- xts::xts(wealth_mat %*% w, order.by = zoo::index(px))
+  
+  # Retornos da carteira (diários)
+  port_rets <- PerformanceAnalytics::Return.calculate(portfolio_value, method = "discrete")
+  port_rets <- na.omit(port_rets)
+  
+  list(returns = port_rets, portfolio_value = portfolio_value)
+}
+
+# =======================
+# LOOP principal: 1998 ... 2024
+# =======================
+anos <- 1998:2024
+
+for (ano in anos) {
+  cat("Processando ano:", ano, "\n")
+  
+  # Janela 01/04/ANO → 31/03/(ANO+1)
+  data_ini <- as.Date(sprintf("%d-04-01", ano))
+  data_fim <- as.Date(sprintf("%d-03-31", ano + 1))
+  
+  price_file <- sprintf("precos_empresas_MF12_%d.xlsx", ano)
+  weight_file <- sprintf("pesos_MF12_%d.xlsx", ano)
+  
+  # Lê arquivos
+  pf <- try(read_prices_file(price_file, data_ini, data_fim), silent = TRUE)
+  if (inherits(pf, "try-error")) { warning(paste("Falha ao ler preços em", price_file)); next }
+  wf <- try(read_weights_file(weight_file), silent = TRUE)
+  if (inherits(wf, "try-error")) { warning(paste("Falha ao ler pesos em", weight_file)); next }
+  
+  # Série de retornos da carteira (Buy & Hold com pesos iniciais)
+  br <- try(build_portfolio_returns(pf$prices, wf, data_ini, data_fim), silent = TRUE)
+  if (inherits(br, "try-error")) { warning(paste("Falha ao montar carteira em", ano)); next }
+  
+  rets_xts <- br$returns
+  rets_vec <- as.numeric(rets_xts)
+  dates    <- zoo::index(rets_xts)
+  
+  # Métricas
+  met <- calc_metrics(rets_vec)
+  
+  # Séries para exportação
+  wealth <- cumprod(1 + rets_vec)
+  drawd  <- PerformanceAnalytics::Drawdowns(rets_vec)
+  
+  series_df <- data.frame(
+    Data         = as.Date(dates),
+    Retorno      = rets_vec,
+    Wealth_Index = wealth,
+    Drawdown     = as.numeric(drawd)
+  )
+  
+  # =======================
+  # Exportar Excel do ano
+  # =======================
+  out_name <- sprintf("indices_resultados_MF12_%d.xlsx", ano)
+  wb <- openxlsx::createWorkbook()
+  openxlsx::addWorksheet(wb, "Resumo")
+  openxlsx::writeData(wb, "Resumo", met)
+  
+  openxlsx::addWorksheet(wb, "Series")
+  openxlsx::writeData(wb, "Series", series_df)
+  
+  openxlsx::saveWorkbook(wb, out_name, overwrite = TRUE)
+  cat("Arquivo salvo:", out_name, "\n")
+}

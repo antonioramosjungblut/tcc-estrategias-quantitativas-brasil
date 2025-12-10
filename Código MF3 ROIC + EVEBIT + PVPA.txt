@@ -1,0 +1,72 @@
+# Código MF3 ROIC + EV/EBIT + P/VPA (2024-1996)
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# Lista de anos
+anos <- 2024:1996
+
+for (ano in anos) {
+  
+  # Nome dos arquivos
+  arquivo_entrada <- paste0(ano, ".xlsx")
+  arquivo_saida <- paste0("MF3_empresas_", ano, ".xlsx")
+  
+  # 1. Ler a planilha
+  dados <- read_excel(arquivo_entrada)
+  
+  # 2. Renomear colunas
+  dados <- dados %>%
+    rename(
+      Ticker = `Ticker`,
+      ROIC = `ROIC último balanço em %`,
+      EV_EBIT = `EV/EBIT atual`,
+      PVPA = `P/VPA atual`
+    )
+  
+  # 3. Substituir "-" por NA e converter para numérico
+  dados <- dados %>%
+    mutate(
+      ROIC = na_if(ROIC, "-"),
+      EV_EBIT = na_if(EV_EBIT, "-"),
+      PVPA = na_if(PVPA, "-"),
+      ROIC = as.numeric(gsub(",", ".", ROIC)),
+      EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT)),
+      PVPA = as.numeric(gsub(",", ".", PVPA))
+    )
+  
+  # 4. Filtrar empresas válidas:
+  #    - ROIC > 0
+  #    - EV/EBIT > 0
+  #    - P/VPA > 0
+  dados_filtrados <- dados %>%
+    filter(!is.na(ROIC), ROIC > 0,
+           !is.na(EV_EBIT), EV_EBIT > 0,
+           !is.na(PVPA), PVPA > 0)
+  
+  # 5. Criar rankings individuais
+  dados_classificados <- dados_filtrados %>%
+    mutate(
+      Rank_ROIC   = rank(-ROIC, ties.method = "first"),     # maior ROIC = melhor
+      Rank_EVEBIT = rank(EV_EBIT, ties.method = "first"),   # menor EV/EBIT = melhor
+      Rank_PVPA   = rank(PVPA, ties.method = "first")       # menor P/VPA = melhor
+    ) %>%
+    # 6. Aplicar regra nova
+    mutate(
+      Rank_Final = Rank_ROIC + ((Rank_EVEBIT + Rank_PVPA) / 2)
+    ) %>%
+    arrange(Rank_Final) %>%
+    mutate(Posicao_Final = row_number())
+  
+  # 7. Selecionar colunas finais
+  resultado <- dados_classificados %>%
+    select(Posicao_Final, Ticker, ROIC, EV_EBIT, PVPA, 
+           Rank_ROIC, Rank_EVEBIT, Rank_PVPA, Rank_Final)
+  
+  # 8. Exportar resultado
+  write.xlsx(resultado, arquivo_saida, overwrite = TRUE)
+  
+  cat("Arquivo", arquivo_saida, "criado com sucesso!\n")
+}
+

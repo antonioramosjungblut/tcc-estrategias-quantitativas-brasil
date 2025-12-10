@@ -1,0 +1,1551 @@
+#Código MF1 ROIC + EV/EBIT 2024:
+
+#Instalar pacotes (se necessário)
+install.packages("readxl")
+install.packages("dplyr")
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# 1. Ler a planilha
+dados <- read_excel("2024.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2024.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2024' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2023:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2023.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2023.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2023.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2022:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2022.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2022.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2022.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2021:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2021.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2021.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2021.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2020:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2020.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2020.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2020.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2019:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2019.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2019.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2019.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2018:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2018.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2018.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2018.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2017:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2017.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2017.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2017.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2016:
+
+# 1. Ler a planilha
+dados <- read_excel("2016.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2016.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2016.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2015:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2015.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2015.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2015.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2014:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2014.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2014.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2014.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2013:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2013.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2013.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2013.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2012:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2012.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2012.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2012.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2011:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2011.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2011.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2011.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2010:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2010.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2010.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2010.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2009:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2009.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2009.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2009.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2008:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2008.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2008.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2008.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2007:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2007.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2007.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2007.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2006:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2006.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2006.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2006.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2005:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2005.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2005.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2005.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2004:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2004.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2004.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2004.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2003:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2003.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2003.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2003.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2002:
+
+# 1. Ler a planilha
+dados <- read_excel("2002.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2002.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2002.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2001:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2001.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2001.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2001.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 2000:
+
+
+# 1. Ler a planilha
+dados <- read_excel("2000.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_2000.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_2000.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 1999:
+
+
+# 1. Ler a planilha
+dados <- read_excel("1999.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_1999.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_1999.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 1998:
+
+
+# 1. Ler a planilha
+dados <- read_excel("1998.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_1998.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_1998.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 1997:
+
+
+# 1. Ler a planilha
+dados <- read_excel("1997.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_1997.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_1997.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+#Código MF1 ROIC + EV/EBIT 1996:
+
+
+# 1. Ler a planilha
+dados <- read_excel("1996.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROIC = `ROIC último balanço em %`,
+    EV_EBIT = `EV/EBIT atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROIC = na_if(ROIC, "-"),
+    EV_EBIT = na_if(EV_EBIT, "-"),
+    ROIC = as.numeric(gsub(",", ".", ROIC)),
+    EV_EBIT = as.numeric(gsub(",", ".", EV_EBIT))
+  )
+
+# 4. Filtrar empresas válidas (ROIC > 0 e EV/EBIT > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROIC), ROIC > 0,
+         !is.na(EV_EBIT), EV_EBIT > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_EV_EBIT = rank(EV_EBIT, ties.method = "first"),   # menor = melhor
+    Rank_ROIC = rank(-ROIC, ties.method = "first"),        # maior = melhor
+    Rank_Final = Rank_EV_EBIT + Rank_ROIC
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROIC, EV_EBIT, Rank_EV_EBIT, Rank_ROIC, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF1_empresas_1996.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF1_empresas_1996.xlsx' criado com sucesso na pasta de trabalho!\n")

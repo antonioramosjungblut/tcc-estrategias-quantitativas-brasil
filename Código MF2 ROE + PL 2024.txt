@@ -1,0 +1,132 @@
+# Código MF2 ROE + P/L 2024:
+
+# Instalar pacotes (se necessário)
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("openxlsx")
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# 1. Ler a planilha
+dados <- read_excel("2024.xlsx")
+
+# 2. Renomear colunas
+dados <- dados %>%
+  rename(
+    Ticker = `Ticker`,
+    ROE = `ROE último balanço em %`,
+    PL = `P/L atual`
+  )
+
+# 3. Substituir "-" por NA e converter para numérico
+dados <- dados %>%
+  mutate(
+    ROE = na_if(ROE, "-"),
+    PL = na_if(PL, "-"),
+    ROE = as.numeric(gsub(",", ".", ROE)),
+    PL = as.numeric(gsub(",", ".", PL))
+  )
+
+# 4. Filtrar empresas válidas (ROE > 0 e P/L > 0)
+dados_filtrados <- dados %>%
+  filter(!is.na(ROE), ROE > 0,
+         !is.na(PL), PL > 0)
+
+# 5. Criar ranking
+dados_classificados <- dados_filtrados %>%
+  mutate(
+    Rank_PL = rank(PL, ties.method = "first"),      # menor P/L = melhor
+    Rank_ROE = rank(-ROE, ties.method = "first"),   # maior ROE = melhor
+    Rank_Final = Rank_PL + Rank_ROE
+  ) %>%
+  arrange(Rank_Final) %>%
+  mutate(Posicao_Final = row_number())
+
+# 6. Selecionar colunas finais
+resultado <- dados_classificados %>%
+  select(Posicao_Final, Ticker, ROE, PL, Rank_PL, Rank_ROE, Rank_Final)
+
+# 7. Exportar para Excel na mesma pasta do script
+write.xlsx(resultado, "MF2_empresas_2024.xlsx", overwrite = TRUE)
+
+cat("Arquivo 'MF2_empresas_2024.xlsx' criado com sucesso na pasta de trabalho!\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Código MF2 ROE + P/L 2023-1996:
+
+library(readxl)
+library(dplyr)
+library(openxlsx)
+
+# Lista de anos (ajuste conforme necessário)
+anos <- 2023:1996  # gera sequência de 2023 até 1996
+
+for (ano in anos) {
+  
+  # Nome do arquivo de entrada e saída
+  arquivo_entrada <- paste0(ano, ".xlsx")
+  arquivo_saida <- paste0("MF2_empresas_", ano, ".xlsx")
+  
+  # 1. Ler a planilha
+  dados <- read_excel(arquivo_entrada)
+  
+  # 2. Renomear colunas
+  dados <- dados %>%
+    rename(
+      Ticker = `Ticker`,
+      ROE = `ROE último balanço em %`,
+      PL = `P/L atual`
+    )
+  
+  # 3. Substituir "-" por NA e converter para numérico
+  dados <- dados %>%
+    mutate(
+      ROE = na_if(ROE, "-"),
+      PL = na_if(PL, "-"),
+      ROE = as.numeric(gsub(",", ".", ROE)),
+      PL = as.numeric(gsub(",", ".", PL))
+    )
+  
+  # 4. Filtrar empresas válidas (ROE > 0 e P/L > 0)
+  dados_filtrados <- dados %>%
+    filter(!is.na(ROE), ROE > 0,
+           !is.na(PL), PL > 0)
+  
+  # 5. Criar ranking
+  dados_classificados <- dados_filtrados %>%
+    mutate(
+      Rank_PL = rank(PL, ties.method = "first"),      # menor P/L = melhor
+      Rank_ROE = rank(-ROE, ties.method = "first"),   # maior ROE = melhor
+      Rank_Final = Rank_PL + Rank_ROE
+    ) %>%
+    arrange(Rank_Final) %>%
+    mutate(Posicao_Final = row_number())
+  
+  # 6. Selecionar colunas finais
+  resultado <- dados_classificados %>%
+    select(Posicao_Final, Ticker, ROE, PL, Rank_PL, Rank_ROE, Rank_Final)
+  
+  # 7. Exportar para Excel
+  write.xlsx(resultado, arquivo_saida, overwrite = TRUE)
+  
+  cat("Arquivo", arquivo_saida, "criado com sucesso!\n")
+}

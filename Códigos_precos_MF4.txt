@@ -1,0 +1,133 @@
+# Código criar uma planilha com os preços para MF4_2024:
+
+install.packages("readxl")
+install.packages("openxlsx")
+
+library(readxl)
+library(openxlsx)
+
+# --- Caminhos dos arquivos ---
+planilha1 <- "MF4_empresas_2024.xlsx"        # lista de tickers (coluna B)
+planilha2 <- "precos_diarios_acoes.xlsx"     # dados por aba
+saida     <- "precos_empresas_MF4_2024.xlsx" # novo arquivo
+
+# --- 1) Ler coluna B a partir da linha 2 até a última célula preenchida (sem perder o 1º ticker) ---
+# Lê explicitamente de B2 até o final; sem cabeçalho para não descartar B2
+tickers_df <- read_excel(
+  path = planilha1,
+  range = readxl::cell_limits(c(2, 2), c(NA, 2)),  # de B2 até B(última)
+  col_names = FALSE
+)
+nomes_abas <- as.character(tickers_df[[1]])
+nomes_abas <- nomes_abas[!is.na(nomes_abas) & nomes_abas != ""]  # limpa NAs/vazios
+
+# --- 2) Criar workbook novo ---
+wb <- createWorkbook()
+
+# Estilos p/ formatar (A = data, B = número geral)
+dateStyle <- createStyle(numFmt = "dd/mm/yyyy")
+numStyle  <- createStyle(numFmt = "GENERAL")
+
+# --- 3) Loop: ler intervalo A7376:B7896 de cada aba e escrever na planilha final ---
+for (nome in nomes_abas) {
+  dados <- tryCatch(
+    {
+      # IMPORTANTE: col_names = FALSE, senão a 1ª linha (7376) vira cabeçalho e se perde
+      df <- read_excel(
+        planilha2,
+        sheet = nome,
+        range = "A7376:B7896",
+        col_names = FALSE,
+        col_types = c("date", "numeric")
+      )
+      colnames(df) <- c("Data", "Valor")
+      df
+    },
+    error = function(e) NULL
+  )
+  
+  if (!is.null(dados) && nrow(dados) > 0) {
+    addWorksheet(wb, nome)
+    writeData(wb, sheet = nome, x = dados, withFilter = FALSE)
+    
+    # Aplicar formatos (pular cabeçalho que escrevemos agora)
+    addStyle(wb, sheet = nome, style = dateStyle,
+             rows = 2:(nrow(dados) + 1), cols = 1, gridExpand = TRUE, stack = TRUE)
+    addStyle(wb, sheet = nome, style = numStyle,
+             rows = 2:(nrow(dados) + 1), cols = 2, gridExpand = TRUE, stack = TRUE)
+  }
+}
+
+# --- 4) Salvar ---
+saveWorkbook(wb, saida, overwrite = TRUE)
+
+
+
+
+
+
+# Lista de anos
+anos <- 2023:1996
+
+# Intervalos de linhas por ano (A:B fixo, só mudam as linhas)
+intervalos <- list(
+  "2023" = "A7115:B7635",
+  "2022" = "A6854:B7375",
+  "2021" = "A6593:B7114",
+  "2020" = "A6331:B6853",
+  "2019" = "A6071:B6592",
+  "2018" = "A5811:B6330",
+  "2017" = "A5550:B6070",
+  "2016" = "A5288:B5810",
+  "2015" = "A5027:B5549",
+  "2014" = "A4766:B5287",
+  "2013" = "A4506:B5026",
+  "2012" = "A4245:B4765",
+  "2011" = "A3984:B4505",
+  "2010" = "A3723:B4244",
+  "2009" = "A3462:B3983",
+  "2008" = "A3201:B3722",
+  "2007" = "A2941:B3461",
+  "2006" = "A2680:B3200",
+  "2005" = "A2419:B2940",
+  "2004" = "A2157:B2679",
+  "2003" = "A1896:B2418",
+  "2002" = "A1636:B2156",
+  "2001" = "A1376:B1895",
+  "2000" = "A1114:B1635",
+  "1999" = "A853:B1375",
+  "1998" = "A592:B1113",
+  "1997" = "A331:B852",
+  "1996" = "A71:B591"
+)
+
+# Arquivo de preços
+precos_file <- "precos_diarios_acoes.xlsx"
+
+# Loop por ano
+for (ano in anos) {
+  
+  cat("Processando ano:", ano, "\n")
+  
+  # 1. Ler tickers do arquivo MF4_empresas_ANO.xlsx
+  planilha_empresas <- paste0("MF4_empresas_", ano, ".xlsx")
+  tickers <- read_excel(planilha_empresas, range = cell_cols("B"), col_names = FALSE)
+  tickers <- na.omit(tickers[[1]])  # remove NAs
+  
+  # 2. Criar workbook de saída
+  wb_saida <- createWorkbook()
+  
+  # 3. Para cada ticker, ler os dados da planilha de preços
+  for (ticker in tickers) {
+    if (ticker %in% excel_sheets(precos_file)) {
+      dados <- read_excel(precos_file, sheet = ticker, range = intervalos[[as.character(ano)]], col_names = FALSE)
+      addWorksheet(wb_saida, ticker)
+      writeData(wb_saida, ticker, dados, colNames = FALSE)
+    } else {
+      cat("Aba não encontrada para:", ticker, "no ano", ano, "\n")
+    }
+  }
+  
+  # 4. Salvar workbook final
+  saveWorkbook(wb_saida, paste0("precos_empresas_MF4_", ano, ".xlsx"), overwrite = TRUE)
+}
