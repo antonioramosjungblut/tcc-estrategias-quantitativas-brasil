@@ -2,10 +2,10 @@ Introdução dos códigos deste GITHUB.
 
 Para rodagens dos códigos temos 3 data-sets base: 
 *O Primeiro refere-se as planilhas com os indicadores já calculados de cada empresa, filtradas pelo seu valor de liquidez diária mínimo e empresas válidas que estavam sendo negociadas no período da análise.  
--aqui teremos 1 data-set para rodas as estratégias da Magic-Formula normal. 
--e também teremos 1 data-set para rodar as estratégias da Magic-Formula que usarão otimização dos pesos dos ativos (visto que na otimização dos ativos utilizamos modelo de média-variância de Markowitz com os cálculos de 3 anos para trás, assim só entrou nesse data-set empresas que estavam sendo negociadas ao menos 3 anos na bolsa no período, enquanto n data-set normal as empresas precisavam apenas estarem sendo negociadas no período de análise).
-*O segundo data-set refere-se a uma planilha contendo os preços diários de todos os ativos negociados em todo o período.
-*O terceiro data-set refere-se aos preços dos benchmarks utilizados na análise. 
+-aqui teremos 1 data-set para cada período para rodar as estratégias da Magic-Formula normal. Os data-sets tem os nomes de "1996" para classificações formadas em 01/04/1996 até "2024" para classificações formadas dia 01/04/2024 
+-e também teremos 1 data-set para rodar as estratégias da Magic-Formula que usarão otimização dos pesos dos ativos (visto que na otimização dos ativos utilizamos modelo de média-variância de Markowitz com os cálculos de 3 anos para trás, assim só entrou nesse data-set empresas que estavam sendo negociadas ao menos 3 anos na bolsa no período, enquanto n data-set normal as empresas precisavam apenas estarem sendo negociadas no período de análise). Esse data-set vai ser só 1 em que cada aba terá um ano de formação das classificações e o nome do arquivo é "data-set-base-estrategias-com-otimMarkowitz" 
+*O segundo data-set refere-se a uma planilha contendo os preços diários de todos os ativos negociados em todo o período. Esse data-set não foi possível incluir visto que passava e muito do limite máximo de tamanho do arquivo.
+*O terceiro data-set refere-se aos preços dos benchmarks utilizados na análise. Esse data-set chama-se "dados-valores-dos-indices"
 
 
 A partir dai conseguimos rodar todos os códigos para obter os resultados e os códigos foram rodados da seguinte maneira:
