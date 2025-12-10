@@ -1,0 +1,150 @@
+library(openxlsx)
+library(readxl)
+
+# =========================
+# Configurações
+# =========================
+anos <- 1996:2024
+estrategias <- paste0("MF", 1:11)
+linhas_base <- c(
+  "TOP 5", "TOP 10", "TOP 15", "TOP 20", "TOP 30",
+  "Quintil 1", "Quintil 2", "Quintil 3", "Quintil 4", "Quintil 5"
+)
+
+# Criação do workbook e da aba
+wb <- createWorkbook()
+addWorksheet(wb, "retornos")
+
+# Cabeçalho (A1 vazio; B1 em diante = anos)
+writeData(wb, "retornos", x = c("", anos), startCol = 1, startRow = 1)
+
+# Coluna A com nomes (para MF1..MF5)
+nomes_linhas <- unlist(lapply(estrategias, function(mf) paste(linhas_base, mf)))
+writeData(wb, "retornos", x = nomes_linhas, startCol = 1, startRow = 2)
+
+# =========================
+# Loop para preencher dados
+# =========================
+for (mf_idx in seq_along(estrategias)) {
+  mf <- estrategias[mf_idx]
+  
+  # Linha inicial da “faixa” desse MF (A2 é a primeira label)
+  # Para MF1: 2; MF2: 12; MF3: 22; MF4: 32; MF5: 42
+  linha_inicio_mf <- 2 + (mf_idx - 1) * length(linhas_base)
+  
+  for (i in seq_along(anos)) {
+    ano <- anos[i]
+    arquivo <- paste0("indices_resultados_", mf, "_", ano, ".xlsx")
+    
+    if (!file.exists(arquivo)) {
+      message("Arquivo não encontrado: ", arquivo)
+      next
+    }
+    
+    # Lê a planilha (A1 é header; A2 vira linha 1 do objeto)
+    dados <- read_excel(arquivo, sheet = 1, col_names = TRUE)
+    
+    # Queremos A2:A11 -> no objeto: linhas 1:10 da PRIMEIRA coluna
+    col1 <- dados[[1]]
+    # Garante exatamente 10 linhas (preenche com NA se faltar; corta se sobrar)
+    if (length(col1) < 10) col1 <- c(col1, rep(NA, 10 - length(col1)))
+    valores <- col1[1:10]
+    
+    # Cola na coluna do ano (B = 2) e na linha certa do bloco do MF
+    writeData(
+      wb, "retornos",
+      x = valores,
+      startCol = i + 1,         # 1996 em B, 1997 em C, etc.
+      startRow = linha_inicio_mf # começa em TOP 5 MFx e desce 10 linhas
+    )
+  }
+}
+
+# =========================
+# Salvar arquivo final
+# =========================
+saveWorkbook(wb, "retornos_resultados.xlsx", overwrite = TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(openxlsx)
+library(readxl)
+
+# =========================
+# Configurações
+# =========================
+anos <- 1998:2024
+estrategias <- paste0("MF", 12:14)
+linhas_base <- c("TOP 5")  # só uma linha, já que copia só A2
+
+# Criação do workbook e da aba
+wb <- createWorkbook()
+addWorksheet(wb, "retornos")
+
+# Cabeçalho (A1 vazio; B1 em diante = anos)
+writeData(wb, "retornos", x = c("", anos), startCol = 1, startRow = 1)
+
+# Coluna A com nomes (TOP 5 MF12, TOP 5 MF13, TOP 5 MF14)
+nomes_linhas <- paste(linhas_base, estrategias)
+writeData(wb, "retornos", x = nomes_linhas, startCol = 1, startRow = 2)
+
+# =========================
+# Loop para preencher dados
+# =========================
+for (mf_idx in seq_along(estrategias)) {
+  mf <- estrategias[mf_idx]
+  
+  # Linha onde cada MF começa
+  linha_inicio_mf <- 2 + (mf_idx - 1)
+  
+  for (i in seq_along(anos)) {
+    ano <- anos[i]
+    arquivo <- paste0("indices_resultados_", mf, "_", ano, ".xlsx")
+    
+    if (!file.exists(arquivo)) {
+      message("Arquivo não encontrado: ", arquivo)
+      next
+    }
+    
+    # Lê a planilha (primeira aba)
+    dados <- read_excel(arquivo, sheet = 1, col_names = TRUE)
+    
+    # Copia apenas a célula A2 -> no R isso é a primeira linha do objeto
+    valor <- dados[[1]][1]
+    
+    # Cola na coluna correta (B = 1998, C = 1999, etc.)
+    writeData(
+      wb, "retornos",
+      x = valor,
+      startCol = i + 1,
+      startRow = linha_inicio_mf
+    )
+  }
+}
+
+# =========================
+# Salvar arquivo final
+# =========================
+saveWorkbook(wb, "retornos_resultados2.xlsx", overwrite = TRUE)
