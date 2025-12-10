@@ -1,0 +1,199 @@
+# =======================================
+# CONSOLIDAR TODAS AS ESTRATÉGIAS (MF1–MF11)
+# =======================================
+library(readxl)
+library(openxlsx)
+
+estrategias <- paste0("MF", 1:11)
+anos <- 1996:2024
+carteiras <- c("Top5", "Top10", "Top15", "Top20", "Top30",
+               "Quintil1", "Quintil2", "Quintil3", "Quintil4", "Quintil5")
+
+# Lista para armazenar dataframes de todas as estratégias
+dados_final <- list()
+
+# =======================================
+# LOOP PRINCIPAL (MF1 → MF11)
+# =======================================
+for (mf in estrategias) {
+  
+  message("📊 Processando ", mf)
+  
+  dados_carteiras <- setNames(vector("list", length(carteiras)), carteiras)
+  
+  for (ano in anos) {
+    
+    arquivo <- paste0("indices_resultados_", mf, "_", ano, ".xlsx")
+    
+    if (!file.exists(arquivo)) {
+      message("⚠️ Arquivo não encontrado: ", arquivo)
+      next
+    }
+    
+    abas <- excel_sheets(arquivo)[2:11]
+    
+    for (i in seq_along(abas)) {
+      aba <- abas[i]
+      
+      # Ler a aba inteira
+      dados <- suppressMessages(read_excel(arquivo, sheet = aba))
+      if (nrow(dados) < 2) next
+      
+      # Pega a coluna B e limpa
+      col_B <- dados[[2]]
+      col_B <- col_B[!is.na(col_B)]
+      col_B <- col_B[col_B != "Retorno"]
+      
+      # Cria data.frame com nome padronizado
+      df_temp <- data.frame(Retorno = as.numeric(col_B))
+      
+      # Empilha
+      dados_carteiras[[i]] <- rbind(dados_carteiras[[i]], df_temp)
+    }
+  }
+  
+  # Padroniza tamanhos dentro da MF
+  max_linhas <- max(sapply(dados_carteiras, nrow))
+  
+  for (i in seq_along(dados_carteiras)) {
+    n <- nrow(dados_carteiras[[i]])
+    if (n < max_linhas) {
+      df_na <- data.frame(Retorno = rep(NA, max_linhas - n))
+      colnames(df_na) <- "Retorno"
+      dados_carteiras[[i]] <- rbind(dados_carteiras[[i]], df_na)
+    }
+  }
+  
+  # Junta carteiras lado a lado
+  df_mf <- do.call(cbind, dados_carteiras)
+  colnames(df_mf) <- paste0(carteiras, "_", mf)
+  
+  dados_final[[mf]] <- df_mf
+}
+
+# =======================================
+# JUNTAR TODAS AS MFs (CORREÇÃO FINAL)
+# =======================================
+max_linhas_geral <- max(sapply(dados_final, nrow))
+
+for (mf in estrategias) {
+  n <- nrow(dados_final[[mf]])
+  if (n < max_linhas_geral) {
+    # Cria bloco de NAs com os mesmos nomes de colunas
+    df_na <- as.data.frame(matrix(NA, nrow = max_linhas_geral - n, ncol = ncol(dados_final[[mf]])))
+    colnames(df_na) <- colnames(dados_final[[mf]])
+    
+    # Agora os nomes batem — rbind funciona
+    dados_final[[mf]] <- rbind(dados_final[[mf]], df_na)
+  }
+}
+
+# Junta tudo lado a lado
+df_final <- do.call(cbind, dados_final)
+
+# =======================================
+# EXPORTAR PARA EXCEL
+# =======================================
+wb <- createWorkbook()
+addWorksheet(wb, "Retornos_MF1_a_MF11")
+writeData(wb, 1, df_final)
+saveWorkbook(wb, "Retornos_MF1_a_MF11_1996_2024.xlsx", overwrite = TRUE)
+
+message("✅ Arquivo 'Retornos_MF1_a_MF11_1996_2024.xlsx' criado com sucesso!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# =======================================
+# CONSOLIDAR MF12, MF13 e MF14 (1998–2024)
+# =======================================
+library(readxl)
+library(openxlsx)
+
+estrategias <- c("MF12", "MF13", "MF14")
+anos <- 1998:2024
+
+# Lista para armazenar os retornos de cada MF
+dados_final <- list()
+
+# =======================================
+# LOOP PRINCIPAL
+# =======================================
+for (mf in estrategias) {
+  
+  message("📊 Processando ", mf)
+  
+  retornos_mf <- NULL
+  
+  for (ano in anos) {
+    arquivo <- paste0("indices_resultados_", mf, "_", ano, ".xlsx")
+    
+    if (!file.exists(arquivo)) {
+      message("⚠️ Arquivo não encontrado: ", arquivo)
+      next
+    }
+    
+    # Ler segunda aba
+    dados <- suppressMessages(read_excel(arquivo, sheet = 2))
+    
+    # Verifica se tem pelo menos 2 linhas (cabeçalho + dados)
+    if (nrow(dados) < 2) next
+    
+    # Pegar coluna B e remover cabeçalho / NAs
+    col_B <- dados[[2]]
+    col_B <- col_B[!is.na(col_B)]
+    col_B <- col_B[col_B != "Retorno"]
+    
+    # Adicionar aos retornos dessa MF
+    retornos_mf <- c(retornos_mf, as.numeric(col_B))
+  }
+  
+  # Armazena o vetor completo como data.frame
+  dados_final[[mf]] <- data.frame(Retorno = retornos_mf)
+}
+
+# =======================================
+# AJUSTAR TAMANHOS E COMBINAR LADO A LADO
+# =======================================
+max_linhas <- max(sapply(dados_final, nrow))
+
+for (mf in estrategias) {
+  n <- nrow(dados_final[[mf]])
+  if (n < max_linhas) {
+    dados_final[[mf]] <- rbind(
+      dados_final[[mf]],
+      data.frame(Retorno = rep(NA, max_linhas - n))
+    )
+  }
+}
+
+# Montar data.frame final
+df_final <- do.call(cbind, dados_final)
+colnames(df_final) <- estrategias
+
+# =======================================
+# EXPORTAR PARA EXCEL
+# =======================================
+wb <- createWorkbook()
+addWorksheet(wb, "Retornos_MF12_a_MF14")
+writeData(wb, 1, df_final)
+saveWorkbook(wb, "Retornos_MF12_a_MF14_1998_2024.xlsx", overwrite = TRUE)
+
+message("✅ Planilha 'Retornos_MF12_a_MF14_1998_2024.xlsx' criada com sucesso!")
+
