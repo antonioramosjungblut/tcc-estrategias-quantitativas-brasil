@@ -9,7 +9,7 @@ Para rodagens dos códigos temos 3 data-sets base:
 
 
 A partir dai conseguimos rodar todos os códigos para obter os resultados e os códigos foram rodados da seguinte maneira:
-*primeiro era rodado um código para definir a classificação das empresas dentro de cada estratégia da Magic Formula;
-*após isso era rodado um código para criar um data-set com os preços diários apenas do universo de empresas que foram classificadas dentro de cada estratégia apenas no período necessário para analisar os resultados;
-*após isso era rodado um código sobre esse data-set dos preços diários que calcula estatísticas de resultados como retornos, desvio-padrão, etc;
-*após isso era rodado um código que compilava todos os resultados de cada estratégia e cada carteira em uma só planilha para que pudesse ser feita uma melhor análise;
+*primeiro era rodado um código para definir a classificação das empresas dentro de cada estratégia da Magic Formula. (esses códigos tem nome: "Código MFX + indicadores da estratégia);
+*após isso era rodado um código para criar um data-set com os preços diários apenas do universo de empresas que foram classificadas dentro de cada estratégia apenas no período necessário para analisar os resultados. (esses códigos tem nome: "código_precos_MFX");
+*após isso era rodado um código sobre esse data-set dos preços diários que calcula estatísticas de resultados como retornos, desvio-padrão, etc. (esses códigos tem nome: "códigos_indices_resultados_MFX");
+*após isso era rodado um código que compilava todos os resultados de cada estratégia e cada carteira em uma só planilha para que pudesse ser feita uma melhor análise. (esse código tem nome: "códigos_resultados_retornos_geral").
